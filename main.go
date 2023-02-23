@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/antchfx/htmlquery"
+	"github.com/PuerkitoBio/goquery"
 	"golang.org/x/net/html/charset"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/unicode"
@@ -22,15 +22,15 @@ func main() {
 		fmt.Printf("read content failed:%v", err)
 		return
 	}
-	doc, err := htmlquery.Parse(bytes.NewReader(body))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(body))
 	if err != nil {
 		fmt.Printf("xxxx %v", err)
 	}
-	nodes := htmlquery.Find(doc, `//div[@class="news_li"]/h2/a[@target="_blank"]`)
 
-	for _, node := range nodes {
-		fmt.Printf("fetch card", node.FirstChild.Data)
-	}
+	doc.Find("div.small_cardcontent__BTALp h2").Each(func(i int, s *goquery.Selection) {
+		title := s.Text()
+		fmt.Printf("Revied %d: %s\n", i, title)
+	})
 }
 
 func Fetch(url string) ([]byte, error) {
