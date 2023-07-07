@@ -9,7 +9,10 @@ import (
 	"golang.org/x/text/transform"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 )
+
+var headerRe = regexp.MustCompile(`<div class="small_cardcontent__BTALp"[\s\S]*?<h2>([\s\S]*?)</h2>`)
 
 func Fetch(url string) ([]byte, error) {
 	resp, err := http.Get(url)
@@ -42,13 +45,17 @@ func DeterminEncoding(r *bufio.Reader) encoding.Encoding {
 }
 
 func main() {
-	url := "https://www.chinanews.com.cn"
+	//url := "https://www.chinanews.com.cn"
+	url := "https://www.thepaper.cn/"
 	body, err := Fetch(url)
 
 	if err != nil {
 		fmt.Printf("read content failed :%v", err)
 		return
 	}
-	fmt.Println(string(body))
+	matches := headerRe.FindAllSubmatch(body, -1)
+	for _, m := range matches {
+		fmt.Println("fetch card news:", string(m[1]))
+	}
 
 }
